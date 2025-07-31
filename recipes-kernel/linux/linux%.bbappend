@@ -1,4 +1,9 @@
-# Ensure U-Boot source is available before kernel compilation
+# Get Directory Path
+BBDIR := "${@os.path.dirname(d.getVar('FILE', True))}"
+
+FILESEXTRAPATHS:prepend := "${BBDIR}/files:"
+SRC_URI += "file://de10nano-fragment.cfg"
+
 do_configure[depends] += "virtual/bootloader:do_unpack"
 
 do_configure:prepend() {
