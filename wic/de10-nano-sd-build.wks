@@ -1,5 +1,5 @@
-# short-description: Create an SD card image for the Cyclone 5 and Arria 5 SoCs
-# long-description: Create an SD card image for the Cyclone 5 and Arria 5 SoCs.
+# short-description: Create an SD card image for the DE10 Nano for a SD Card Boot.
+# long-description: Create an SD card image for the DE10 Nano for a SD Card Boot.
 # Boot files are located in the first vfat partition and u-Boot is located in
 # the third partition.
 

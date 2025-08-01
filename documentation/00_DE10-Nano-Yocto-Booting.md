@@ -96,3 +96,6 @@ Then Power the board on, you will notice it will load up Uboot, then the linux k
 
 ## Setting up a NFS Boot
 
+sudo tar --same-owner -xzf -C /srv/nfs/shared/de10nano/
+
+tftpboot ${kernel_addr_r} zImage; tftpboot ${fdt_addr_r} ${fdtfile}; setenv bootargs 'root=/dev/nfs nfsroot=192.168.2.10:/srv/nfs/shared/de10nano,port=2049,nfsvers=3,tcp earlycon ip=192.168.2.20:192.168.2.10:0.0.0.0:255.255.255.0::eth0:off rw console=ttyS0,115200n8'; bootz ${kernel_addr_r} - ${fdt_addr_r}
