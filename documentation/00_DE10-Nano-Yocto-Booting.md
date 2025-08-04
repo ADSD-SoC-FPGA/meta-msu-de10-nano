@@ -24,7 +24,7 @@ Then pull down the Intel Altera Yocto Layer for their reference designs for spec
 
 ```
 mkdir -p $DE10_WORKSPACE/meta-layers
-git clone git@github.com:altera-fpga/meta-intel-fpga-refdes.git --branch=scarthgap $DE10_WORKSPACE/meta-layers/meta-intel-fpga-refdes
+git clone https://github.com/night1rider/meta-msu-de10-nano.git
 git clone https://git.yoctoproject.org/meta-intel-fpga --branch=scarthgap $DE10_WORKSPACE/meta-layers/meta-intel-fpga
 ```
 
@@ -37,7 +37,7 @@ source $DE10_WORKSPACE/yocto/oe-init-build-env
 
 4. Add the Intel FPGA Meta Layer
 
-Open the file `conf/bblayers.conf` located in `$DE10_WORKSPACE/de-10-nano_minimal/build`
+Open the file `conf/local.conf` located in `$DE10_WORKSPACE/de-10-nano_minimal/build`
 
 Then change the file from 
 
@@ -85,7 +85,7 @@ MACHINE = "de10-nano-audio-mini"
 DE10_NANO_DEPLOY_CONFIG = "sd"
 ```
 
-6. Run `bitbake core-image-minimal`
+6. Run `bitbake audio-mini-passthrough`
 
 Once the build is completed flash the `$DE10_WORKSPACE/de-10-nano_minimal/build/tmp/deploy/images/cyclone5/core-image-minimal-cyclone5.rootfs.wic` to an SD card.
 
@@ -96,40 +96,16 @@ Then Power the board on, you will notice it will load up Uboot, then the linux k
 
 ## Setting up a NFS Boot
 
-sudo tar --same-owner -xzf tmp/deploy/images/de10-nano-audio-mini/core-image-minimal-de10-nano-audio-mini.rootfs.tar.gz -C /srv/nfs/shared/de10nano/
+1. Run the Script `setup_servers.sh` located in the `tools` directory:
 
-tftpboot ${kernel_addr_r} zImage; tftpboot ${fdt_addr_r} ${fdtfile}; setenv bootargs 'root=/dev/nfs nfsroot=192.168.2.10:/srv/nfs/shared/de10nano,port=2049,nfsvers=3,tcp earlycon ip=192.168.2.20:192.168.2.10:0.0.0.0:255.255.255.0::eth0:off rw console=ttyS0,115200n8'; bootz ${kernel_addr_r} - ${fdt_addr_r}
+```
+sudo ./tools/setup_servers.sh --help
+```
 
+This will setup the NFS and TFTP server for the given interface/mac address of a device and the ip.
 
+2. Switch `DE10_NANO_DEPLOY_CONFIG = "sd"` to `DE10_NANO_DEPLOY_CONFIG = "tftp-nfs"`
 
-passthrough$ bsp-create-settings --type spl --bsp-dir bsp-build/ --preloader-settings-dir hps_isw_handoff/soc_system_passthrough_hps --settings bsp-build/settings.bsp
+3. Look inside the `conf/machine/de10-nano-audio-mini.conf` to determine if there is any option such as IPs, directories, ect that you want to change. *DO NOT EDIT THAT FILE*, make all changes in the `local.conf` for yocto.
 
-
-
-
-
-
-
-bsp stuff
-
-DE10_NANO_HW_PROJECT = "/home/night1rider/university/de10-nano/DE10-Nano-Lab-Code/examples/passthrough"
-
-DE10_NANO_HW_PROJECT_BSP_DIR = "/home/night1rider/university/de10-nano/DE10-Nano-Lab-Code/examples/passthrough/bsp-build"
-
-
-
-
-
-
-MACHINE = "de10-nano-audio-mini"
-DE10_NANO_DEPLOY_CONFIG = "tftp-nfs"
-
-#DE10_NANO_CUSTOM_DTB = "socfpga_cyclone5_de0_nano_soc.dtb"
-#DE10_NANO_CUSTOM_DTS = "socfpga_cyclone5_de0_nano_soc.dts"
-#DE10_NANO_CUSTOM_DTS_PATH = "/home/night1rider/university/de10-nan"
-
-QUARTUS_ROOTDIR = "/opt/Quartus/24.1"
-DE10_NANO_HW_PROJECT = "/home/night1rider/university/de10-nano/DE10-Nano-Lab-Code/examples/passthrough"
-DE10_NANO_HPS_NAME = "soc_system_passthrough_hps"
-SOC_EDS_DIR = "/opt/SoC-EDS/embedded"
-DE10_NANO_RBF_FILE = "/home/night1rider/university/de10-nano/DE10-Nano-Lab-Code/examples/passthrough/Outputs/soc_system.rbf"
+4. Run `bitbake audio-mini-passthrough`
