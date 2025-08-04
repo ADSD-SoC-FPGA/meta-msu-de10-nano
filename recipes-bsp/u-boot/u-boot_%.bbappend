@@ -151,6 +151,8 @@ do_deploy:append() {
         bbwarn "Using default RBF file: ${rbf_file}"
     fi
 
+    cp -rf "${rbf_file}" "${DEPLOY_DIR_IMAGE}/soc_system.rbf"
+
     if [ "${DE10_NANO_TFTP_DIR}" != "" ] && [ "${DE10_NANO_DEPLOY_CONFIG}" == "tftp-nfs" ]; then
         bbwarn "Copying RBF file to TFTP directory: ${DE10_NANO_TFTP_DIR}"
         cp -rf "${rbf_file}" "${DE10_NANO_TFTP_DIR}/soc_system.rbf"
