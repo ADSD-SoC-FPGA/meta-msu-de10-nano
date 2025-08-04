@@ -146,6 +146,7 @@ do_configure:prepend() {
 do_deploy:append() {
     if [ "${DE10_NANO_RBF_FILE}" != "" ]; then
         bbwarn "Using RBF file: ${DE10_NANO_RBF_FILE}"
+        rbf_file="${DE10_NANO_RBF_FILE}"
     else
         rbf_file="${BBDIR}/files/bitstream/soc_system.rbf"
         bbwarn "Using default RBF file: ${rbf_file}"

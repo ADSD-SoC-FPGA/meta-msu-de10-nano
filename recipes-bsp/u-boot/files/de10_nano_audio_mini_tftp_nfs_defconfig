@@ -197,7 +197,7 @@ CONFIG_ENV_SIZE=0x2000
 CONFIG_ENV_OFFSET=0x4400
 CONFIG_DM_GPIO=y
 CONFIG_SPL_DM_SPI=y
-CONFIG_DEFAULT_DEVICE_TREE="de10-nano-audio-mini-base"
+CONFIG_DEFAULT_DEVICE_TREE="de10nano-audiomini-combfilter"
 CONFIG_SPL_TEXT_BASE=0xFFFF0000
 # CONFIG_OF_LIBFDT_OVERLAY is not set
 CONFIG_MULTI_DTB_FIT_UNCOMPRESS_SZ=0x8000
@@ -414,7 +414,7 @@ CONFIG_ARCH_FIXUP_FDT_MEMORY=y
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="run get-fpgadata; run load-fpga; run get-dtb; run get-kernel; run bridge-enable-de10nano; run bootnfs"
 # CONFIG_USE_PREBOOT is not set
-CONFIG_DEFAULT_FDT_FILE="de10-nano-audio-mini-base.dtb"
+CONFIG_DEFAULT_FDT_FILE="de10nano-audiomini-combfilter.dtb"
 # CONFIG_SAVE_PREV_BL_FDT_ADDR is not set
 # CONFIG_SAVE_PREV_BL_INITRAMFS_START_ADDR is not set
 
