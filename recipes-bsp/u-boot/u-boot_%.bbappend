@@ -133,7 +133,7 @@ do_configure:prepend() {
         python3 -B ${CV_BSP_GENERATOR_SCRIPT} -i ${DE10_NANO_HW_PROJECT_HPS_DIR}/${DE10_NANO_HPS_NAME} -o ${QTS_DIR}
 
     else
-        cp -rf "${BBDIR}/files/qts/*" "${QTS_DIR}"
+        cp -rf "${BBDIR}/files/qts/" "${QTS_DIR}/.."
         bbwarn "Using default QTS files"
     fi
 
@@ -147,13 +147,12 @@ do_deploy:append() {
     if [ "${DE10_NANO_RBF_FILE}" != "" ]; then
         bbwarn "Using RBF file: ${DE10_NANO_RBF_FILE}"
     else
-        DE10_NANO_RBF_FILE = "${BBDIR}/files/bitstream/soc_system.rbf"
-        bbwarn "Using default RBF file: ${DE10_NANO_RBF_FILE}"
+        rbf_file="${BBDIR}/files/bitstream/soc_system.rbf"
+        bbwarn "Using default RBF file: ${rbf_file}"
     fi
 
-    cp -rf "${DE10_NANO_RBF_FILE}" "${DEPLOY_DIR_IMAGE}/soc_system.rbf"
     if [ "${DE10_NANO_TFTP_DIR}" != "" ] && [ "${DE10_NANO_DEPLOY_CONFIG}" == "tftp-nfs" ]; then
         bbwarn "Copying RBF file to TFTP directory: ${DE10_NANO_TFTP_DIR}"
-        cp -rf "${DE10_NANO_RBF_FILE}" "${DE10_NANO_TFTP_DIR}/soc_system.rbf"
+        cp -rf "${rbf_file}" "${DE10_NANO_TFTP_DIR}/soc_system.rbf"
     fi
 }
