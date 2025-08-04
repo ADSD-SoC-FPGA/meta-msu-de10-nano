@@ -98,6 +98,10 @@ do_configure:prepend() {
         done
     fi
 
+    if [ -d "${QTS_DIR}" ]; then
+        rm -rf "${QTS_DIR}"
+    fi
+    mkdir -p "${QTS_DIR}"
 
     # Setup BSP
     if [ "${DE10_NANO_HW_PROJECT}" != "" ] && [ "${DE10_NANO_HPS_NAME}" != "" ] && [ "${SOC_EDS_DIR}" != "" ] && [ "${QUARTUS_ROOTDIR}" != "" ]; then
@@ -125,44 +129,31 @@ do_configure:prepend() {
 
         ${SOC_EDS_DIR}/embedded_command_shell.sh -c bsp-create-settings --type spl --bsp-dir ${DE10_NANO_HW_PROJECT_BSP_DIR} --preloader-settings-dir ${DE10_NANO_HW_PROJECT_HPS_DIR}/${DE10_NANO_HPS_NAME} --settings ${DE10_NANO_HW_PROJECT_BSP_DIR}/settings.bsp
 
-        if [ -d "${QTS_DIR}" ]; then
-            rm -rf "${QTS_DIR}"
-        fi
-        mkdir -p "${QTS_DIR}"
-
         # Run the QTS filter script to generate the appropriate QTS files
-        #${QTS_FILTER_SCRIPT} ${KMACHINE} ${DE10_NANO_HW_PROJECT} ${DE10_NANO_HW_PROJECT_BSP_DIR} ${QTS_DIR}
         python3 -B ${CV_BSP_GENERATOR_SCRIPT} -i ${DE10_NANO_HW_PROJECT_HPS_DIR}/${DE10_NANO_HPS_NAME} -o ${QTS_DIR}
-        
-        #ln -sf "${DE10_NANO_HW_PROJECT_BSP_DIR}/generated/iocsr_config_cyclone5.h" "${QTS_DIR}/iocsr_config.h"
-        #ln -sf "${DE10_NANO_HW_PROJECT_BSP_DIR}/generated/pinmux_config.h" "${QTS_DIR}/pinmux_config.h"
-        #ln -sf "${DE10_NANO_HW_PROJECT_BSP_DIR}/generated/pll_config.h" "${QTS_DIR}/pll_config.h"
-        #ln -sf "${DE10_NANO_HW_PROJECT_BSP_DIR}/generated/sdram/sdram_config.h" "${QTS_DIR}/sdram_config.h"
-
-        # Replace CONFIG with CFG in all QTS header files for U-Boot 2024.01 compatibility
-        #sed -i 's/CONFIG_/CFG_/g' "${QTS_DIR}/iocsr_config.h"
-        #sed -i 's/CONFIG_/CFG_/g' "${QTS_DIR}/pinmux_config.h"
-        #sed -i 's/CONFIG_/CFG_/g' "${QTS_DIR}/pll_config.h"
-        #sed -i 's/CONFIG_/CFG_/g' "${QTS_DIR}/sdram_config.h"
-
-        bbplain "Updated QTS files: replaced CONFIG_ with CFG_ for U-Boot 2024.01 compatibility"
 
     else
-        bbwarn "DE10_NANO_HW_PROJECT, DE10_NANO_HPS_NAME, SOC_EDS_DIR, and QUARTUS_ROOTDIR must be set to use correct Pin Muxing for HW Project"
+        cp -rf "${BBDIR}/files/qts/*" "${QTS_DIR}"
+        bbwarn "Using default QTS files"
     fi
-
-    if [ "${DE10_NANO_RBF_FILE}" != "" ]; then
-        bbwarn "Using RBF file: ${DE10_NANO_RBF_FILE}"
-    else
-        bbwarn "Using default RBF file: ${DE10_NANO_RBF_FILE}"
-    fi
-
 
     # Setup FDT file
     cd "${S}/configs"
     sed -i "s|^CONFIG_DEFAULT_FDT_FILE=.*|CONFIG_DEFAULT_FDT_FILE=\"${DE10_NANO_CUSTOM_DTB}\"|" "${BBDIR}/files/de10_nano_audio_mini_tftp_nfs_defconfig"
     sed -i "s|^CONFIG_DEFAULT_FDT_FILE=.*|CONFIG_DEFAULT_FDT_FILE=\"${DE10_NANO_CUSTOM_DTB}\"|" "${BBDIR}/files/de10_nano_audio_mini_sd_defconfig"
+}
 
+do_deploy:append() {
+    if [ "${DE10_NANO_RBF_FILE}" != "" ]; then
+        bbwarn "Using RBF file: ${DE10_NANO_RBF_FILE}"
+    else
+        DE10_NANO_RBF_FILE = "${BBDIR}/files/bitstream/soc_system.rbf"
+        bbwarn "Using default RBF file: ${DE10_NANO_RBF_FILE}"
+    fi
 
-
+    cp -rf "${DE10_NANO_RBF_FILE}" "${DEPLOY_DIR_IMAGE}/soc_system.rbf"
+    if [ "${DE10_NANO_TFTP_DIR}" != "" ] && [ "${DE10_NANO_DEPLOY_CONFIG}" == "tftp-nfs" ]; then
+        bbwarn "Copying RBF file to TFTP directory: ${DE10_NANO_TFTP_DIR}"
+        cp -rf "${DE10_NANO_RBF_FILE}" "${DE10_NANO_TFTP_DIR}/soc_system.rbf"
+    fi
 }

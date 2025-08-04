@@ -1,4 +1,8 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2022 Intel Corporation <www.intel.com>
+ *
+ */
 /*
  * Altera SoCFPGA IOCSR configuration
  */
@@ -6,6 +10,10 @@
 #ifndef __SOCFPGA_IOCSR_CONFIG_H__
 #define __SOCFPGA_IOCSR_CONFIG_H__
 
+#define CFG_HPS_IOCSR_SCANCHAIN0_LENGTH	764
+#define CFG_HPS_IOCSR_SCANCHAIN1_LENGTH	1719
+#define CFG_HPS_IOCSR_SCANCHAIN2_LENGTH	955
+#define CFG_HPS_IOCSR_SCANCHAIN3_LENGTH	16766
 
 const unsigned long iocsr_scan_chain0_table[] = {
 	0x00000000,
@@ -650,6 +658,7 @@ const unsigned long iocsr_scan_chain3_table[] = {
 	0x0000001F,
 	0x00004000,
 };
+
 
 
 #endif /* __SOCFPGA_IOCSR_CONFIG_H__ */

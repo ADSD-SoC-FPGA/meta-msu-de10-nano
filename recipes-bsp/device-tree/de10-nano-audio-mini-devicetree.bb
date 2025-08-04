@@ -44,3 +44,11 @@ do_configure:prepend() {
     cp -f "${BBDIR}/files/de10-nano-audio-mini-base.dts" "${WORKDIR}/de10-nano-audio-mini-base.dts"
     cp -f "${BBDIR}/files/de10-nano-audio-mini-base.dts" "${WORKDIR}/de10-nano-audio-mini-base.dtsi"
 }
+
+# Copy device tree to TFTP directory if DE10_NANO_TFTP_DIR is set and DE10_NANO_DEPLOY_CONFIG is tftp-nfs
+do_deploy:append() {
+    if [ "${DE10_NANO_TFTP_DIR}" != "" ] && [ "${DE10_NANO_DEPLOY_CONFIG}" == "tftp-nfs" ]; then
+        bbwarn "Copying device tree to TFTP directory: ${DE10_NANO_TFTP_DIR}"
+        cp -rf "${WORKDIR}/build/${DE10_NANO_CUSTOM_DTB}" "${DE10_NANO_TFTP_DIR}/${DE10_NANO_CUSTOM_DTB}"
+    fi
+}
