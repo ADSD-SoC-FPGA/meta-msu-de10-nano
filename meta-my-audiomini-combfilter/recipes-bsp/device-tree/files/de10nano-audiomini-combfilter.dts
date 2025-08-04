@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: GPL-2.0+
+#include "de10-nano-audio-mini-base.dtsi"
+
+/{
+    model = "Audio Logic Audio Mini Comb Filter";
+};
+
+
+
+
+/{
+    combFilterProcessor_0: combFilterProcessor_0@ff200000{
+        compatible = "zab,combFilterProcessor_0";
+        reg = <0xff200000 0x10>;
+    };
+};
+
+
+
+&fpga_bridge0 {
+  status = "okay";
+  bridge-enable = <1>;
+};
+
+&fpga_bridge1 {
+  status = "okay";
+  bridge-enable = <1>;
+};
