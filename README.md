@@ -7,4 +7,13 @@ Along with that this repo will also be adapting the necassary software found in 
 
 The Ultimate goal being is to have a concise repository to build all necassary kernel drivers and software to run the examples in the book.
 
-Please Refer to the documentation in the `./documentation` folder of this repo for guidance
+Please Refer to the documentation in the `./docde10-nano-audio-mini-devicetree
+    umentation` folder of this repo for guidance
+
+
+Quartus Prime Lite:
+
+Intel SoC EDS:
+https://www.intel.com/content/www/us/en/software-kit/661080/intel-soc-fpga-embedded-development-suite-soc-eds-standard-edition-software-version-20-1-for-linux.html
+
+./cv_bsp_generator.py -i /home/night1rider/university/de10-nano/DE10-Nano-Lab-Code/examples/passthrough/hps_isw_handoff/soc_system_passthrough_hps -o $(pwd)/temp

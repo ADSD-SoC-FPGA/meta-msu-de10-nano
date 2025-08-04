@@ -96,6 +96,40 @@ Then Power the board on, you will notice it will load up Uboot, then the linux k
 
 ## Setting up a NFS Boot
 
-sudo tar --same-owner -xzf -C /srv/nfs/shared/de10nano/
+sudo tar --same-owner -xzf tmp/deploy/images/de10-nano-audio-mini/core-image-minimal-de10-nano-audio-mini.rootfs.tar.gz -C /srv/nfs/shared/de10nano/
 
 tftpboot ${kernel_addr_r} zImage; tftpboot ${fdt_addr_r} ${fdtfile}; setenv bootargs 'root=/dev/nfs nfsroot=192.168.2.10:/srv/nfs/shared/de10nano,port=2049,nfsvers=3,tcp earlycon ip=192.168.2.20:192.168.2.10:0.0.0.0:255.255.255.0::eth0:off rw console=ttyS0,115200n8'; bootz ${kernel_addr_r} - ${fdt_addr_r}
+
+
+
+passthrough$ bsp-create-settings --type spl --bsp-dir bsp-build/ --preloader-settings-dir hps_isw_handoff/soc_system_passthrough_hps --settings bsp-build/settings.bsp
+
+
+
+
+
+
+
+bsp stuff
+
+DE10_NANO_HW_PROJECT = "/home/night1rider/university/de10-nano/DE10-Nano-Lab-Code/examples/passthrough"
+
+DE10_NANO_HW_PROJECT_BSP_DIR = "/home/night1rider/university/de10-nano/DE10-Nano-Lab-Code/examples/passthrough/bsp-build"
+
+
+
+
+
+
+MACHINE = "de10-nano-audio-mini"
+DE10_NANO_DEPLOY_CONFIG = "tftp-nfs"
+
+#DE10_NANO_CUSTOM_DTB = "socfpga_cyclone5_de0_nano_soc.dtb"
+#DE10_NANO_CUSTOM_DTS = "socfpga_cyclone5_de0_nano_soc.dts"
+#DE10_NANO_CUSTOM_DTS_PATH = "/home/night1rider/university/de10-nan"
+
+QUARTUS_ROOTDIR = "/opt/Quartus/24.1"
+DE10_NANO_HW_PROJECT = "/home/night1rider/university/de10-nano/DE10-Nano-Lab-Code/examples/passthrough"
+DE10_NANO_HPS_NAME = "soc_system_passthrough_hps"
+SOC_EDS_DIR = "/opt/SoC-EDS/embedded"
+DE10_NANO_RBF_FILE = "/home/night1rider/university/de10-nano/DE10-Nano-Lab-Code/examples/passthrough/Outputs/soc_system.rbf"
