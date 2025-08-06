@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-2.0+
+#include "de10-nano-audio-mini-base.dtsi"
+
+/{
+    model = "Audio Logic Audio Mini";
+    
+    ad1939 {
+        compatible = "dev,al-ad1939";
+    };
+    
+    tpa613a2 {
+        compatible = "dev,al-tpa613a2";
+    };
+    
+    combFilterProcessor_0: combFilterProcessor@ff200000 {
+        compatible = "kds,combFilterProcessor";  
+        reg = <0xff200000 0x10>; 
+    };
+};
+
+&spi0{
+    status = "okay";
+};

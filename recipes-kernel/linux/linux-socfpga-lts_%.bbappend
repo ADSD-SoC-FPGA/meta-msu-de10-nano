@@ -1,0 +1,1 @@
+linux-socfpga_%.bbappend
