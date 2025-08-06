@@ -37,7 +37,7 @@ source $DE10_WORKSPACE/yocto/oe-init-build-env
 
 4. Add the Intel FPGA Meta Layer
 
-Open the file `conf/local.conf` located in `$DE10_WORKSPACE/de-10-nano_minimal/build`
+Open the file `conf/bblayers.conf` located in `$DE10_WORKSPACE/de-10-nano_minimal/build`
 
 Then change the file from 
 
@@ -76,7 +76,7 @@ BBLAYERS ?= " \
 
 *NOTE* You will need to use *YOUR* absolute path the the Intel FPGA Meta Layer *DO NOT COPY MY EXAMPLE 1:1*
 
-5. Edit the file `conf/bblayers.conf` located in `$DE10_WORKSPACE/de-10-nano_minimal/build`
+5. Edit the file `conf/local.conf` located in `$DE10_WORKSPACE/de-10-nano_minimal/build`
 
 Then At the end of the file add the following:
 

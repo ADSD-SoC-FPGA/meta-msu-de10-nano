@@ -14,6 +14,7 @@ SRCREV = "${AUTOREV}"
 S = "${WORKDIR}/git/examples/passthrough/linux/tpa613a2"
 
 DEPENDS += "virtual/kernel"
+RDEPENDS:${PN} += "audio-mini-bitstream"
 
 PROVIDES = "tpa6130a2-audiomini"
 

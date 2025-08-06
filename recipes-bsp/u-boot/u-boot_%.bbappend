@@ -127,7 +127,6 @@ do_configure:prepend() {
             exit 1
         fi
 
-        ${SOC_EDS_DIR}/embedded_command_shell.sh -c bsp-create-settings --type spl --bsp-dir ${DE10_NANO_HW_PROJECT_BSP_DIR} --preloader-settings-dir ${DE10_NANO_HW_PROJECT_HPS_DIR}/${DE10_NANO_HPS_NAME} --settings ${DE10_NANO_HW_PROJECT_BSP_DIR}/settings.bsp
 
         # Run the QTS filter script to generate the appropriate QTS files
         python3 -B ${CV_BSP_GENERATOR_SCRIPT} -i ${DE10_NANO_HW_PROJECT_HPS_DIR}/${DE10_NANO_HPS_NAME} -o ${QTS_DIR}
@@ -141,21 +140,4 @@ do_configure:prepend() {
     cd "${S}/configs"
     sed -i "s|^CONFIG_DEFAULT_FDT_FILE=.*|CONFIG_DEFAULT_FDT_FILE=\"${DE10_NANO_CUSTOM_DTB}\"|" "${BBDIR}/files/de10_nano_audio_mini_tftp_nfs_defconfig"
     sed -i "s|^CONFIG_DEFAULT_FDT_FILE=.*|CONFIG_DEFAULT_FDT_FILE=\"${DE10_NANO_CUSTOM_DTB}\"|" "${BBDIR}/files/de10_nano_audio_mini_sd_defconfig"
-}
-
-do_deploy:append() {
-    if [ "${DE10_NANO_RBF_FILE}" != "" ]; then
-        bbwarn "Using RBF file: ${DE10_NANO_RBF_FILE}"
-        rbf_file="${DE10_NANO_RBF_FILE}"
-    else
-        rbf_file="${BBDIR}/files/bitstream/soc_system.rbf"
-        bbwarn "Using default RBF file: ${rbf_file}"
-    fi
-
-    cp -rf "${rbf_file}" "${DEPLOY_DIR_IMAGE}/soc_system.rbf"
-
-    if [ "${DE10_NANO_TFTP_DIR}" != "" ] && [ "${DE10_NANO_DEPLOY_CONFIG}" == "tftp-nfs" ]; then
-        bbwarn "Copying RBF file to TFTP directory: ${DE10_NANO_TFTP_DIR}"
-        cp -rf "${rbf_file}" "${DE10_NANO_TFTP_DIR}/soc_system.rbf"
-    fi
 }

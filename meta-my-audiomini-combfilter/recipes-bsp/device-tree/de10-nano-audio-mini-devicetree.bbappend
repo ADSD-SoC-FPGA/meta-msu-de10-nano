@@ -5,7 +5,7 @@ FILESEXTRAPATHS:prepend := "${BBDIR_APP}/files:"
 SRC_URI += "file://de10nano-audiomini-combfilter.dts"
 
 #override the default DT_FILES variable
-DT_FILES = "de10nano-audiomini-combfilter.dts"
+DT_FILES = " de10nano-audiomini-combfilter.dts"
 
 do_configure:append() {
     # Use the sources from U-Boot path, but copy our DTS files to the correct location

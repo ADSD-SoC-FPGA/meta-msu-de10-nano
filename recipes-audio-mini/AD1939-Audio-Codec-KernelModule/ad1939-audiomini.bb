@@ -14,6 +14,7 @@ SRCREV = "${AUTOREV}"
 S = "${WORKDIR}/git/examples/passthrough/linux/ad1939"
 
 DEPENDS += "virtual/kernel"
+RDEPENDS:${PN} += "audio-mini-bitstream"
 
 PROVIDES = "ad1939-audiomini"
 

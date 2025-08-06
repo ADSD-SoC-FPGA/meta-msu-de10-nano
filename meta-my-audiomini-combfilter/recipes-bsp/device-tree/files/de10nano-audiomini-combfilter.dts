@@ -2,27 +2,22 @@
 #include "de10-nano-audio-mini-base.dtsi"
 
 /{
-    model = "Audio Logic Audio Mini Comb Filter";
-};
-
-
-
-
-/{
-    combFilterProcessor_0: combFilterProcessor_0@ff200000{
-        compatible = "zab,combFilterProcessor_0";
-        reg = <0xff200000 0x10>;
+    model = "Audio Logic Audio Mini";
+    
+    ad1939 {
+        compatible = "dev,al-ad1939";
+    };
+    
+    tpa613a2 {
+        compatible = "dev,al-tpa613a2";
+    };
+    
+    combFilterProcessor_0: combFilterProcessor@ff200000 {
+        compatible = "kds,combFilterProcessor";  
+        reg = <0xff200000 0x10>; 
     };
 };
 
-
-
-&fpga_bridge0 {
-  status = "okay";
-  bridge-enable = <1>;
-};
-
-&fpga_bridge1 {
-  status = "okay";
-  bridge-enable = <1>;
+&spi0{
+    status = "okay";
 };

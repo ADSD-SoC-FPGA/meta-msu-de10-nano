@@ -46,9 +46,13 @@ do_configure:prepend() {
 }
 
 # Copy device tree to TFTP directory if DE10_NANO_TFTP_DIR is set and DE10_NANO_DEPLOY_CONFIG is tftp-nfs
-do_deploy:append() {
+do_tftp_deploy() {
     if [ "${DE10_NANO_TFTP_DIR}" != "" ] && [ "${DE10_NANO_DEPLOY_CONFIG}" == "tftp-nfs" ]; then
         bbwarn "Copying device tree to TFTP directory: ${DE10_NANO_TFTP_DIR}"
-        cp -rf "${WORKDIR}/build/${DE10_NANO_CUSTOM_DTB}" "${DE10_NANO_TFTP_DIR}/${DE10_NANO_CUSTOM_DTB}"
+        cp -Lf "${DEPLOYDIR}/devicetree/${DE10_NANO_CUSTOM_DTB}" "${DE10_NANO_TFTP_DIR}/${DE10_NANO_CUSTOM_DTB}"
     fi
 }
+
+# Add the tftp_deploy task to run after deploy
+addtask tftp_deploy after do_deploy
+do_tftp_deploy[nostamp] = "1"
