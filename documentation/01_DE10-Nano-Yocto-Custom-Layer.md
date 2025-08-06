@@ -407,14 +407,338 @@ meta-my-audiomini-combfilter/recipes-bsp/audio-mini-bitstream/
     └── soc_system.rbf                     # CombFilter-specific bitstream
 ```
 
-10. **Summary**
+## Remaining Layer Components
+
+### 10. Custom Image Recipe
+
+**Location**: `meta-my-audiomini-combfilter/recipes-core/image/audio-mini-combfilter.bb`
+
+**Purpose**: This recipe defines a complete bootable image specifically for the CombFilter Audio Mini system. It demonstrates how to inherit functionality from a bbclass and add specific packages.
+
+```bitbake
+# meta-msu-de10-nano/recipes-core/images/audio-mini-combfilter.bb
+SUMMARY = "Custom image with CombFilter support for DE10-Nano"
+LICENSE = "MIT"
+
+# Inherit the common Audio Mini image functionality
+inherit audio-mini-image
+
+# Add CombFilter-specific packages
+IMAGE_INSTALL:append = " audiomini-combfilter-controller"
+```
+
+#### Understanding the Custom Image Recipe
+
+- **Inheritance**: Uses `inherit audio-mini-image` to pull in all base Audio Mini functionality
+- **Package Addition**: Automatically includes the CombFilter controller and its dependencies
+- **Simplicity**: Minimal recipe that leverages the power of bbclass inheritance
+- **Complete System**: Results in a bootable image with all necessary components
+
+The inheritance means this image automatically gets:
+- Base Audio Mini drivers (`audiomini-drivers`)
+- Package management tools (APT, DPKG)
+- NFS deployment scripts
+- TFTP integration
+- Standard Linux filesystem structure
+
+Building this image is covered in the "Building and Running the CombFilter Image" section below, including the required `local.conf` configuration.
+
+### 7. Device Tree Configuration
+
+**Location**: `meta-my-audiomini-combfilter/recipes-bsp/device-tree/de10-nano-audio-mini-devicetree.bbappend`
+
+**Purpose**: This bbappend modifies the base device tree to include CombFilter-specific hardware definitions, ensuring the kernel recognizes the CombFilter hardware at the correct memory address.
+
+```bitbake
+BBDIR_APP := "${@os.path.dirname(d.getVar('FILE', True))}"
+
+FILESEXTRAPATHS:prepend := "${BBDIR_APP}/files:"
+
+SRC_URI += "file://de10nano-audiomini-combfilter.dts"
+
+#override the default DT_FILES variable
+DT_FILES = " de10nano-audiomini-combfilter.dts"
+
+do_configure:append() {
+    # Use the sources from U-Boot path, but copy our DTS files to the correct location
+    cp -f "${BBDIR_APP}/files/de10nano-audiomini-combfilter.dts" "${WORKDIR}/de10nano-audiomini-combfilter.dts"
+    cp -f "${BBDIR_APP}/files/de10nano-audiomini-combfilter.dts" "${WORKDIR}/de10nano-audiomini-combfilter.dtsi"
+}
+```
+
+#### Device Tree Source File
+
+**Location**: `meta-my-audiomini-combfilter/recipes-bsp/device-tree/files/de10nano-audiomini-combfilter.dts`
+
+```dts
+// SPDX-License-Identifier: GPL-2.0+
+#include "de10-nano-audio-mini-base.dtsi"
+
+/{
+    model = "Audio Logic Audio Mini";
+    
+    ad1939 {
+        compatible = "dev,al-ad1939";
+    };
+    
+    tpa613a2 {
+        compatible = "dev,al-tpa613a2";
+    };
+    
+    combFilterProcessor_0: combFilterProcessor@ff200000 {
+        compatible = "kds,combFilterProcessor";  
+        reg = <0xff200000 0x10>; 
+    };
+};
+
+&spi0{
+    status = "okay";
+};
+```
+
+#### Understanding Device Tree Configuration
+
+- **Hardware Definition**: Defines the CombFilter hardware at memory address `0xff200000`
+- **Compatible String**: `"kds,combFilterProcessor"` must match the kernel driver's `platform_driver` registration
+- **Memory Mapping**: `reg = <0xff200000 0x10>` defines 16 bytes of memory-mapped registers
+- **Base Inheritance**: Includes common Audio Mini hardware definitions via `de10-nano-audio-mini-base.dtsi`
+- **SPI Interface**: Enables SPI0 interface required for audio codec communication
+
+The device tree serves as the hardware description that allows the Linux kernel to:
+1. Recognize the CombFilter hardware at boot
+2. Load the appropriate driver when the compatible string matches
+3. Map the correct memory addresses for hardware access
+4. Enable required peripherals (SPI, I2C, etc.)
+
+## Understanding Yocto bbclass Files
+
+A **bbclass** file is a shared code module in Yocto that provides reusable functionality across multiple recipes. It's similar to a class in object-oriented programming - it encapsulates common behavior that can be inherited by recipes.
+
+### What is a bbclass?
+
+- **Extension**: `.bbclass`
+- **Location**: Stored in `classes/` directories within layers
+- **Inheritance**: Recipes inherit bbclass functionality using the `inherit` directive
+- **Purpose**: Eliminate code duplication and standardize common operations
+
+### Key Benefits of bbclass Files
+
+1. **Code Reuse**: Write once, use in multiple recipes
+2. **Standardization**: Ensure consistent behavior across related recipes
+3. **Maintenance**: Update functionality in one place affects all inheriting recipes
+4. **Abstraction**: Hide complex operations behind simple interfaces
+5. **Modularity**: Separate concerns into logical, reusable components
+
+### Example: audio-mini-image.bbclass
+
+**Location**: `meta-msu-de10-nano/classes/audio-mini-image.bbclass`
+
+This bbclass demonstrates several key concepts:
+
+```bitbake
+# audio-mini-image.bbclass
+# Reusable class for Audio Mini images on DE10-Nano
+
+# Inherit core-image for standard image tasks
+inherit core-image
+
+# Package Management Configuration
+IMAGE_INSTALL:append = " apt dpkg audiomini-drivers"
+PACKAGE_FEED_URIS:append = " http://mirror.0x.sg/debian/"
+PACKAGE_CLASSES ?= "package_deb"
+
+# Specify output image formats
+IMAGE_FSTYPES = "tar.gz ext4 wic"
+
+# Custom task to deploy the rootfs via NFS
+do_deploy_nfs() {
+    # ... implementation details ...
+}
+
+# Task dependencies and ordering
+addtask deploy_nfs after do_image_complete before do_build
+```
+
+#### What This bbclass Provides
+
+1. **Standard Image Base**: Inherits `core-image` for basic Linux functionality
+2. **Package Management**: Configures APT/DPKG with Debian repositories
+3. **Audio Mini Drivers**: Automatically includes required hardware drivers
+4. **Multiple Formats**: Generates `.tar.gz`, `.ext4`, and `.wic` images
+5. **NFS Deployment**: Custom task for network filesystem deployment
+6. **TFTP Integration**: Coordinates with bootloader components
+
+#### How Recipes Use This bbclass
+
+Any recipe can inherit this functionality:
+
+```bitbake
+# In a recipe file (.bb)
+inherit audio-mini-image
+
+# The recipe now automatically has:
+# - All base image functionality
+# - Audio Mini drivers included
+# - NFS deployment capability
+# - Package management configured
+# - Multiple output formats
+```
+
+### Common bbclass Types in Yocto
+
+1. **Build System Classes**
+   - `cmake.bbclass`: CMake build system support
+   - `autotools.bbclass`: GNU Autotools support
+   - `kernel.bbclass`: Linux kernel building
+   - `module.bbclass`: Kernel module compilation
+
+2. **Package Management Classes**
+   - `systemd.bbclass`: Systemd service integration
+   - `update-rc.d.bbclass`: SysV init script management
+   - `useradd.bbclass`: User account creation
+
+3. **Image Classes**
+   - `core-image.bbclass`: Base Linux images
+   - `image.bbclass`: General image creation
+   - `image-live.bbclass`: Live USB/CD images
+
+4. **Development Classes**
+   - `externalsrc.bbclass`: External source trees
+   - `devshell.bbclass`: Development shell access
+   - `rm_work.bbclass`: Build artifact cleanup
+
+### Creating Custom bbclass Files
+
+When creating a bbclass, consider:
+
+1. **Reusability**: Will multiple recipes benefit from this functionality?
+2. **Abstraction**: Does it hide complex operations behind a simple interface?
+3. **Configuration**: Are there variables that recipes should be able to override?
+4. **Dependencies**: What other classes or packages are required?
+5. **Tasks**: Are custom build tasks needed?
+
+#### bbclass Best Practices
+
+```bitbake
+# my-custom.bbclass
+
+# Provide default values that recipes can override
+MY_CUSTOM_VAR ?= "default_value"
+
+# Use conditional assignment for flexibility
+MY_SETTING ??= "fallback_value"
+
+# Create reusable functions
+my_custom_function() {
+    # Reusable functionality here
+}
+
+# Define custom tasks when needed
+do_my_custom_task() {
+    my_custom_function
+}
+
+# Set up task dependencies
+addtask my_custom_task after do_compile before do_install
+```
+
+### Integration with Custom Layers
+
+The `audio-mini-image.bbclass` demonstrates how custom bbclass files enable:
+
+1. **Layer Consistency**: All Audio Mini images share common functionality
+2. **Easy Customization**: New images inherit base functionality and add specifics
+3. **Maintenance Efficiency**: Updates to common functionality happen in one place
+4. **Rapid Development**: New images require minimal code
+
+For example, creating a new variant is simple:
+
+```bitbake
+# audio-mini-special.bb
+inherit audio-mini-image
+
+# Add special packages
+IMAGE_INSTALL:append = " my-special-package"
+
+# Override settings if needed
+IMAGE_FSTYPES = "wic"
+```
+
+This approach makes the custom layer highly maintainable and allows for rapid development of new Audio Mini variants while ensuring consistency across all implementations.
+
+### Conclusion
+
+The `meta-my-audiomini-combfilter` layer demonstrates a complete Yocto custom layer implementation with:
+
+- **Modular Architecture**: Separate kernel module and userspace components
+- **Intelligent Configuration**: Conditional bitstream selection based on build context
+- **Hardware Integration**: Proper device tree configuration for FPGA hardware
+- **Reusable Infrastructure**: bbclass-based image construction for consistency
+- **Development Efficiency**: Minimal code required for new images through inheritance
+
+The bbclass system provides the foundation for maintainable, scalable embedded Linux development, allowing complex functionality to be encapsulated and reused across multiple projects while maintaining clean separation of concerns.
+
+## Summary
 
 This guide has covered the complete setup of a custom Yocto layer for the DE10-Nano board with Audio-Mini CombFilter support. The implementation includes:
 
-- Custom layer creation and configuration
-- Kernel module driver for hardware interface
-- Userspace controller application with systemd integration
-- Intelligent conditional bitstream selection system
-- Comprehensive build and deployment guidance
+- **Custom layer creation and configuration** with proper dependencies
+- **Kernel module driver** for hardware interface and platform device integration
+- **Userspace controller application** with systemd integration for automatic startup
+- **Intelligent conditional bitstream selection** system that automatically switches FPGA configurations
+- **Device tree configuration** for proper hardware recognition and memory mapping
+- **Custom image recipe** leveraging bbclass inheritance for rapid development
+- **Comprehensive bbclass system** demonstrating reusable component architecture
+- **Build and deployment guidance** with required configuration steps
 
-The modular approach separates hardware abstraction (kernel module) from application logic (userspace controller), while the conditional bitstream system ensures the correct FPGA configuration is automatically deployed based on the packages being built. This enables independent development and testing while maintaining clean interfaces between components.
+### Key Achievements
+
+The modular approach demonstrates several important embedded Linux development concepts:
+
+1. **Hardware Abstraction**: Clean separation between kernel module (hardware interface) and userspace application (business logic)
+2. **Intelligent Configuration**: Conditional bitstream selection eliminates manual configuration overhead
+3. **Reusable Infrastructure**: bbclass-based image construction ensures consistency across variants
+4. **Scalable Architecture**: Easy addition of new components without disrupting existing functionality
+5. **Development Efficiency**: Minimal code required for new images through inheritance patterns
+
+This layer serves as a comprehensive template for creating production-ready embedded Linux systems on FPGA platforms, demonstrating best practices for maintainable, scalable development workflows.
+
+## Building and Running the CombFilter Image
+
+Now that all components have been explained, here's how to build and deploy the complete CombFilter image:
+
+### Required local.conf Configuration
+
+**IMPORTANT**: Before building, you must add the following configuration to your `de-10-nano_minimal/build/conf/local.conf` file:
+
+```bitbake
+# Override device tree configuration for CombFilter
+DE10_NANO_CUSTOM_DEVICE_TREE = "de10nano-audiomini-combfilter"
+DE10_NANO_CUSTOM_DTB = "de10nano-audiomini-combfilter.dtb"
+DE10_NANO_CUSTOM_DTS = "de10nano-audiomini-combfilter.dts"
+```
+
+Add these lines to the end of your `local.conf` file before building the image. Without this configuration, the image will not use the correct device tree for the CombFilter hardware.
+
+**Note**: This manual configuration requirement will be addressed in future layer updates to make the process more automatic.
+
+### Build Commands
+
+```bash
+# Source the Yocto environment
+source oe-init-build-env
+
+# Build the CombFilter image
+bitbake audio-mini-combfilter
+```
+
+The build process will:
+1. Compile the CombFilter kernel module
+2. Build the userspace controller application
+3. Select the appropriate FPGA bitstream automatically
+4. Configure the device tree for CombFilter hardware
+5. Create a complete bootable image with all components
+
+### Deployment
+
+After successful build, the image files will be available in `de-10-nano_minimal/build/tmp/deploy/images/de10-nano/` and can be flashed to an SD card or deployed via NFS using the generated deployment scripts.
