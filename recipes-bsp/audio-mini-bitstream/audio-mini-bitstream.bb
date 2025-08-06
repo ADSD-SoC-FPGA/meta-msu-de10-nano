@@ -20,7 +20,7 @@ inherit deploy
 do_install() {
     # Install RBF file to sysroot for other recipes to use
     install -d ${D}${datadir}/bitstreams
-    install -m 0644 ${S}/${RBF_FILE} ${D}${datadir}/bitstreams/${RBF_FILE}
+    install -m 0644 ${RBF_LOCATION} ${D}${datadir}/bitstreams/${RBF_FILE}
 }
 
 do_deploy() {
