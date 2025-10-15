@@ -62,7 +62,7 @@ LAYERDEPENDS_meta-my-audiomini-combfilter = "core meta-msu-de10-nano"
 LAYERSERIES_COMPAT_meta-my-audiomini-combfilter = "scarthgap"
 ```
 
-*Notice the change* to `LAYERDEPENDS_meta-my-audiomini-combfilter`, adding `meta-msu-de10-nano`.
+**Notice the change** to `LAYERDEPENDS_meta-my-audiomini-combfilter`, adding `meta-msu-de10-nano`.
 
 4. Remove the `recipes-example` folder:
 
@@ -115,7 +115,7 @@ meta-my-audiomini-combfilter/recipes-audio-mini/
         └── combFilterController.service
 ```
 
-### 6.1 Kernel Module Driver Recipe
+### Kernel Module Driver Recipe
 
 **Location**: `meta-my-audiomini-combfilter/recipes-audio-mini/Audio-Mini-CombFilter-KernelModule/audiomini-combfilter-driver.bb`
 
@@ -132,7 +132,7 @@ combfilter-objs := combFilter.c
 
 The `Kbuild` file should define build rules compatible with the kernel build system, typically similar to the `Makefile` or containing specific kernel module configurations.
 
-7. Open the `audiomini-combfilter-driver.bb` file and add the following kernel module recipe:
+Open the `audiomini-combfilter-driver.bb` file and add the following kernel module recipe:
 
 ```
 SUMMARY = "Driver for the Comb Filter on the Audio Mini"
@@ -198,7 +198,7 @@ To build the kernel module:
 bitbake audiomini-combfilter-driver
 ```
 
-### 6.2 Userspace Controller Recipe
+### Userspace Controller Recipe
 
 **Location**: `meta-my-audiomini-combfilter/recipes-audio-mini/Audio-Mini-CombFilter-Controller/audiomini-combfilter-controller.bb`
 
@@ -206,7 +206,7 @@ bitbake audiomini-combfilter-driver
 
 Create the file `audiomini-combfilter-controller.bb` in `./meta-my-audiomini-combfilter/recipes-audio-mini/Audio-Mini-CombFilter-Controller` and move your source code (`combFilterController.c`) and systemd service file (`combFilterController.service`) into `./meta-my-audiomini-combfilter/recipes-audio-mini/Audio-Mini-CombFilter-Controller/files`.
 
-8. Open the `audiomini-combfilter-controller.bb` file and add the following userspace controller recipe:
+Open the `audiomini-combfilter-controller.bb` file and add the following userspace controller recipe:
 
 ```bitbake
 # SPDX-License-Identifier: MIT
@@ -335,7 +335,7 @@ This modular approach allows for independent development and testing of the kern
 Ensure the `audiomini-drivers` package is available in your layer or another layer (e.g., `meta-msu-de10-nano`). Verify that the device tree (`recipes-bsp/device-tree`) includes a node for the Comb Filter hardware, with a `compatible` string matching the driver's `platform_driver` in `combFilter.c` (e.g., `compatible = "combfilter";`).
 
 
-9. **Conditional FPGA Bitstream Selection**
+**Conditional FPGA Bitstream Selection**
 
 The `meta-my-audiomini-combfilter` layer includes an intelligent bitstream selection system that automatically switches between different FPGA configurations based on the packages being built.
 
@@ -409,7 +409,7 @@ meta-my-audiomini-combfilter/recipes-bsp/audio-mini-bitstream/
 
 ## Remaining Layer Components
 
-### 10. Custom Image Recipe
+### Custom Image Recipe
 
 **Location**: `meta-my-audiomini-combfilter/recipes-core/image/audio-mini-combfilter.bb`
 
@@ -443,7 +443,7 @@ The inheritance means this image automatically gets:
 
 Building this image is covered in the "Building and Running the CombFilter Image" section below, including the required `local.conf` configuration.
 
-### 7. Device Tree Configuration
+### Device Tree Configuration
 
 **Location**: `meta-my-audiomini-combfilter/recipes-bsp/device-tree/de10-nano-audio-mini-devicetree.bbappend`
 
@@ -709,7 +709,7 @@ Now that all components have been explained, here's how to build and deploy the 
 
 ### Required local.conf Configuration
 
-**IMPORTANT**: Before building, you must add the following configuration to your `de-10-nano_minimal/build/conf/local.conf` file:
+**IMPORTANT:** Before building, you must add the following configuration to your `de-10-nano_minimal/build/conf/local.conf` file:
 
 ```bitbake
 # Override device tree configuration for CombFilter
@@ -720,7 +720,7 @@ DE10_NANO_CUSTOM_DTS = "de10nano-audiomini-combfilter.dts"
 
 Add these lines to the end of your `local.conf` file before building the image. Without this configuration, the image will not use the correct device tree for the CombFilter hardware.
 
-**Note**: This manual configuration requirement will be addressed in future layer updates to make the process more automatic.
+**Note:** This manual configuration requirement will be addressed in future layer updates to make the process more automatic.
 
 ### Build Commands
 
@@ -741,4 +741,4 @@ The build process will:
 
 ### Deployment
 
-After successful build, the image files will be available in `de-10-nano_minimal/build/tmp/deploy/images/de10-nano/` and can be flashed to an SD card or deployed via NFS using the generated deployment scripts.
+After a successful build, the image files will be available in `de-10-nano_minimal/build/tmp/deploy/images/de10-nano/` and can be flashed to an SD card or deployed via NFS using the generated deployment scripts.
